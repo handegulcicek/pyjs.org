@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+from operator import truediv
 from optparse import OptionParser, OptionGroup
+from pickle import TUPLE1
 from docutils.core import publish_parts
 from docutils.writers.html4css1 import Writer
 from epydoc import cli
@@ -14,7 +16,8 @@ def makeWikiLink(m):
     name = link = parts[0]
     if len(parts) == 2:
         link = parts[1]
-    return '`%s <%s.html>`_' % (name, link)
+    return '`%s <%s.html>`_' % (name, link.lower())
+
 
 def makeTemplate(menu):
     menu = menu.replace('<li><strong>', '<li class="section">')
@@ -22,6 +25,7 @@ def makeTemplate(menu):
     tpl = open('template.html', 'r').read()
     tpl = re.sub('<ul class="menu-list">.*?</ul>', menu, tpl, flags=re.DOTALL|re.MULTILINE)
     return tpl
+    
 
 reDocument = re.compile('^<div class="document".*?>(.*)</div>$', re.DOTALL)
 def wikiToHTML(wikiFile):
@@ -56,7 +60,7 @@ def generateSite(opts):
     nfiles = float(len(wikiPages))
     for i, page in enumerate(wikiPages):
         name = basename(page)[:-5]
-        outname = join(opts.target, name+'.html')
+        outname = join(opts.target, name.lower()+'.html')
         log.progress(i/nfiles, outname)
         html = wikiToHTML(page)
         writeHTML(html, template, outname)
